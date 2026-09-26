@@ -29,18 +29,18 @@ The analysis focuses on four questions:
 
 ## Metrics
 
-For spectroscopic redshift \(z_{\rm spec}\) and predicted photometric redshift \(z_{\rm phot}\),
+For spectroscopic redshift $z_{\rm spec}$ and predicted photometric redshift $z_{\rm phot}$,
 
-\[
+$$
 \Delta z_{\rm norm} =
 \frac{z_{\rm phot}-z_{\rm spec}}{1+z_{\rm spec}}.
-\]
+$$
 
 Performance is evaluated using:
 
-- **NMAD:** \(1.48\,\mathrm{median}(|\Delta z_{\rm norm}|)\)
-- **Bias:** median normalized residual
-- **Outlier fraction:** fraction with \(|\Delta z_{\rm norm}| > 0.15\)
+- **NMAD:** $1.48\,\mathrm{median}(|\Delta z_{\rm norm}|)$
+- **Bias:** $\mathrm{median}(\Delta z_{\rm norm})$
+- **Outlier fraction:** fraction with $|\Delta z_{\rm norm}| > 0.15$
 - **RMSE:** root-mean-square normalized residual
 
 ## Feature sets
