@@ -1,48 +1,51 @@
 # Photometric Redshift ML Benchmark
 
-A reproducible machine-learning workflow for estimating **photometric redshifts (photo-z)** from galaxy photometry and structural properties.
+Machine-learning comparison for estimating **photometric redshifts (photo-z)** from galaxy photometry and structural properties.
 
-The project compares tree-based models, nearest-neighbor regression, gradient boosting, neural networks, and Gaussian-process regression using astronomy-specific diagnostics such as **NMAD**, bias, RMSE, and catastrophic-outlier fraction.
+The project benchmarks multiple supervised-regression methods and studies how performance changes with training-set size, feature selection, preprocessing, and model hyperparameters.
 
-**Tech:** Python, pandas, NumPy, scikit-learn, XGBoost, CatBoost, TensorFlow/Keras (optional), SciPy, Matplotlib
+**Tech:** Python, pandas, NumPy, scikit-learn, XGBoost, CatBoost, TensorFlow/Keras, SciPy, Matplotlib
 
-## Analysis workflow
+## Overview
 
-The benchmark is organized around four questions:
+Spectroscopic redshifts are accurate but expensive to obtain at large scale. Photometric redshift estimation uses broadband imaging measurements to infer galaxy redshift efficiently.
 
-1. **Model comparison** — how accurately do different regression algorithms predict spectroscopic redshift?
-2. **Feature ablation** — how does performance change as size, categorical, and structural information are added?
-3. **Training-size scaling** — how quickly does prediction quality improve as the training sample grows?
-4. **Hyperparameter sensitivity** — how strongly do model choices such as tree depth, estimator count, neighbor count, and network size affect the results?
-
-Models supported by the code include:
+This project evaluates several regression approaches on Bright Galaxy Survey data from the DESI Legacy Imaging Surveys:
 
 - Random Forest
-- weighted / unweighted K-Nearest Neighbors
+- K-Nearest Neighbors
 - XGBoost
 - CatBoost
-- scikit-learn MLP
-- Keras neural network (optional)
+- Multi-Layer Perceptron
+- Keras neural network
 - Gaussian Process Regression
+
+The analysis focuses on four questions:
+
+1. How do different ML models compare on the same prediction task?
+2. Which galaxy features contribute most to prediction accuracy?
+3. How does performance scale with training-set size?
+4. How sensitive are the results to model hyperparameters?
 
 ## Metrics
 
-For spectroscopic redshift \(z_\mathrm{spec}\) and predicted photometric redshift \(z_\mathrm{phot}\),
+For spectroscopic redshift \(z_{\rm spec}\) and predicted photometric redshift \(z_{\rm phot}\),
 
 \[
-\Delta z_\mathrm{norm} = \frac{z_\mathrm{phot}-z_\mathrm{spec}}{1+z_\mathrm{spec}}.
+\Delta z_{\rm norm} =
+\frac{z_{\rm phot}-z_{\rm spec}}{1+z_{\rm spec}}.
 \]
 
-The main diagnostics are:
+Performance is evaluated using:
 
-- **NMAD:** \(1.48\,\mathrm{median}(|\Delta z_\mathrm{norm}|)\)
-- **Bias:** \(\mathrm{median}(\Delta z_\mathrm{norm})\)
-- **Outlier fraction:** fraction with \(|\Delta z_\mathrm{norm}| > 0.15\)
-- **RMSE:** root-mean-square normalized redshift error
+- **NMAD:** \(1.48\,\mathrm{median}(|\Delta z_{\rm norm}|)\)
+- **Bias:** median normalized residual
+- **Outlier fraction:** fraction with \(|\Delta z_{\rm norm}| > 0.15\)
+- **RMSE:** root-mean-square normalized residual
 
 ## Feature sets
 
-The pipeline supports progressive feature sets similar to those used in the analysis:
+The feature-ablation analysis uses progressively richer inputs:
 
 ```text
 colors + magnitudes
@@ -54,26 +57,32 @@ colors + magnitudes
         + structural / reddening features
 ```
 
-The default feature builder derives six colors from eight magnitude-like inputs and adds:
+Features include broadband and fiber magnitudes, galaxy size, morphology, photometric system, Sérsic index, reddening, ellipticity, and fit-quality information.
 
-- half-light radius
-- morphology
-- photometric system
-- Sérsic index
-- reddening (EBV)
-- ellipticity
-- Δχ²
+## Selected results
 
-Column names and feature groups are configurable in `src/photoz_ml/features.py`. See `docs/experiment_spec.md` for the experiment specification preserved from the project material.
+The full-feature Random Forest and CatBoost models gave the strongest results in the feature-ablation study.
+
+| Model | NMAD | Outliers |
+|---|---:|---:|
+| Random Forest | 0.0250 | 0.863% |
+| Weighted KNN | 0.0320 | 1.088% |
+| XGBoost | 0.0328 | 1.204% |
+| CatBoost | 0.0248 | 0.927% |
+| MLP | 0.0308 | 1.062% |
+
+The training-size analysis also showed an approximately power-law improvement in photo-z accuracy as the training sample increased.
+
+Additional tables are available in `results/`.
 
 ## Repository structure
 
 ```text
 src/photoz_ml/
-  data.py          # table loading and train/test preparation
-  features.py      # feature engineering and feature-set definitions
-  metrics.py       # photo-z metrics
-  models.py        # model registry
+  data.py          # loading and train/test preparation
+  features.py      # feature engineering and feature sets
+  metrics.py       # NMAD, bias, outlier fraction, RMSE
+  models.py        # model definitions
   evaluation.py    # fitting, scoring, and diagnostic plots
 
 experiments/
@@ -81,10 +90,14 @@ experiments/
   feature_ablation.py
   training_size_scaling.py
   generate_synthetic_demo.py
+  run_demo.sh
 
 results/
-  reference_feature_ablation.csv
-  reference_hyperparameters.csv
+  feature_ablation.csv
+  model_settings.csv
+
+docs/
+  methodology.md
 
 tests/
   test_metrics.py
@@ -101,13 +114,13 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Generate a synthetic galaxy catalog:
+A small synthetic catalog is included as a convenient way to exercise the pipeline without downloading survey data:
 
 ```bash
 python experiments/generate_synthetic_demo.py
 ```
 
-Run a compact benchmark:
+Run the model comparison:
 
 ```bash
 python experiments/benchmark_models.py \
@@ -115,7 +128,7 @@ python experiments/benchmark_models.py \
   --models rf knn_distance xgb catboost mlp
 ```
 
-Run the feature-ablation study:
+Run the feature-ablation analysis:
 
 ```bash
 python experiments/feature_ablation.py \
@@ -123,7 +136,7 @@ python experiments/feature_ablation.py \
   --model rf
 ```
 
-Run the training-size scaling analysis:
+Run the training-size scaling experiment:
 
 ```bash
 python experiments/training_size_scaling.py \
@@ -131,48 +144,33 @@ python experiments/training_size_scaling.py \
   --model rf
 ```
 
-Generated tables and plots are written to `outputs/`.
-
-For a one-command smoke test:
+Or run the compact demo:
 
 ```bash
 bash experiments/run_demo.sh
 ```
 
-## Input data
+Outputs are written to `outputs/`.
 
-The loader accepts CSV or Parquet tables. The target column defaults to:
+## Input format
 
-```text
-zspec
-```
+The loader accepts CSV or Parquet tables with `zspec` as the default target column.
 
-A typical table can contain magnitude columns such as
+Typical photometric columns are:
 
 ```text
 g_mag, r_mag, z_mag, w1_mag, w2_mag,
 fiber_g_mag, fiber_r_mag, fiber_z_mag
 ```
 
-plus optional structural/categorical columns such as
+Optional structural and categorical columns include:
 
 ```text
 hlr, morphology, photsys, sersic, ebv, ellipticity, dchi2
 ```
 
-The synthetic-data generator creates this schema automatically.
-
-## Reference results
-
-`results/reference_feature_ablation.csv` records the feature-ablation metrics from the original analysis for comparison with future runs. The values are **reference measurements**, not hard-coded model outputs.
-
-The original analysis found that Random Forest and CatBoost benefited most from the full feature set, while KNN performed best after adding size information. Random Forest and the Keras network gave the strongest overall photo-z performance among the tested configurations.
-
-## Notes on reproducibility
-
-Exact numerical results depend on the source catalog, filtering cuts, train/test realization, preprocessing, and library versions. The code is therefore designed to reproduce the **analysis workflow and diagnostics** rather than force a particular set of metric values.
-
+Column mappings and feature groups can be edited in `src/photoz_ml/features.py`.
 
 ## Acknowledgments
 
-The original graduate project was completed with **Yasha Kaushal** under the supervision of **Prof. Jeffrey A. Newman** at the University of Pittsburgh.
+Developed with **Yasha Kaushal** under the supervision of **Prof. Jeffrey A. Newman** at the University of Pittsburgh.
