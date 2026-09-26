@@ -1,0 +1,15 @@
+model,setting,value
+Random Forest,n_estimators,20
+Random Forest,max_depth,20
+Weighted KNN,n_neighbors_best_outliers_distance,30
+KNN,n_neighbors_best_outliers_uniform,20
+CatBoost,n_estimators,40
+MLP,max_iterations,50
+Keras,hidden_layers,2
+Keras,activation,ReLU
+Keras,batch_size,200
+Keras,epochs,40
+Keras,units,60
+Keras,regularization,L2
+Gaussian Process,training_iterations,30
+Gaussian Process,grid_size,200

@@ -1,0 +1,11 @@
+model,metric,colors_mags,colors_mags_hlr,colors_mags_cat,all
+Random Forest,NMAD,0.0283,0.0271,0.0274,0.0250
+Random Forest,Outliers (%),1.165,1.133,1.017,0.863
+Weighted KNN,NMAD,0.0286,0.0281,0.0290,0.0320
+Weighted KNN,Outliers (%),1.101,0.991,1.191,1.088
+XGBoost,NMAD,0.0359,0.0353,0.0353,0.0328
+XGBoost,Outliers (%),1.449,1.223,1.178,1.204
+CatBoost,NMAD,0.0299,0.0290,0.0273,0.0248
+CatBoost,Outliers (%),1.281,1.185,1.114,0.927
+MLP,NMAD,0.0329,0.0300,0.0319,0.0308
+MLP,Outliers (%),1.185,1.140,0.933,1.062
