@@ -75,6 +75,26 @@ The training-size analysis also showed an approximately power-law improvement in
 
 Additional tables are available in `results/`.
 
+### Random Forest performance
+
+<p align="center">
+  <img src="figures/random_forest_photoz_performance.png"
+       alt="Random Forest photometric redshift predictions and residuals"
+       width="520">
+</p>
+
+The Random Forest model achieves tight agreement between predicted and spectroscopic redshifts, with the residual panels highlighting the dependence of the prediction error on redshift and apparent magnitude.
+
+### Training-size scaling
+
+<p align="center">
+  <img src="figures/training_size_scaling.png"
+       alt="Photometric redshift performance versus training sample size"
+       width="780">
+</p>
+
+Prediction quality improves systematically as the training sample grows, with both NMAD and outlier fraction following an approximately power-law scaling with training-set size.
+
 ## Repository structure
 
 ```text
