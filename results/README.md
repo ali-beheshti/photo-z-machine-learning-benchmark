@@ -1,5 +1,8 @@
-# Reference results
+# Results
 
-The CSV files in this directory record numerical results and model settings preserved from the original project write-up and presentation.
+This directory contains summary tables from the photometric-redshift model comparison.
 
-They are included as reference points for the implemented experiments. They are not generated automatically by the code in this repository and should not be interpreted as guaranteed outputs for a different catalog, preprocessing pipeline, random split, or package version.
+- `feature_ablation.csv` — NMAD and outlier fraction for progressively richer feature sets
+- `model_settings.csv` — selected model configurations used in the analysis
+
+The feature-ablation study shows that Random Forest and CatBoost benefit strongly from the full feature set, while KNN performs best after adding galaxy size information.
